@@ -12,7 +12,7 @@ Modified Android TV APK based on PlayZ TV, rebranded as **Amol TV**.
 
 - App / splash name: **Amol TV**
 - Startup tab: **Favourites**
-- Top tabs order: Categories → Favourites → Live Events → Sports → Highlights → Settings
+- Top tabs order: Categories → Favourites → Live Events → Sports → H → Settings
 - Green / red online–offline status dots on channel logos
 
 ## Screenshots
