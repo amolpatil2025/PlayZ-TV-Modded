@@ -8,9 +8,8 @@ Modified Android TV APK based on PlayZ TV, rebranded as **Amol TV**.
 
 • Device Compatibility: Mainly distributed as an Android APK, it is also frequently configured for Firestick and Android TV boxes.
 
-## What’s included
 
-- App / splash name: **Amol TV**
+- All-in-One Entertainment- All TV Channels also Streaming Live TV Apps
 - Startup tab: **Favourites**
 - Top tabs order: Categories → Favourites → Live Events → Sports → H → Settings
 - Green / red online–offline status dots on channel logos
