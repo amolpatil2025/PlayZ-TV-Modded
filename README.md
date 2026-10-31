@@ -1,6 +1,6 @@
 # Amol TV
 
-Modified Android TV APK based on PlayZ TV, rebranded as **Amol TV**.
+Modified Android TV APK based on Live TV, rebranded as **Amol TV**.
 
 • Live Sports Streaming: Gives free access to major domestic and international events including cricket, football, hockey, and WWE.
 
