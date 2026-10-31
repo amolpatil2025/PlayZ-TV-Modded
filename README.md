@@ -67,8 +67,6 @@ adb shell am start -n com.playz.tv/com.playz.tv.activities.SplashActivity
 
 ## Notes
 
-- Package name remains `com.playz.tv` (replaces the original PlayZ TV install).
-- Signed with a local debug keystore for sideload use.
 - Files:
   - `AmolTV.apk` — installable build
   - `pic/` — screenshots used above
