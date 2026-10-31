@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageButton android:id="@id/refresh_links_btn" android:background="@drawable/refresh_button_back" android:padding="5.0dip" android:focusable="true" android:clickable="true" android:layout_width="30.0dip" android:layout_height="30.0dip" android:layout_marginLeft="10.0dip" android:layout_marginRight="10.0dip" android:src="@drawable/refresh_24px" android:scaleType="fitCenter" android:contentDescription="@string/refresh_servers" android:layout_marginHorizontal="10.0dip" />
+</FrameLayout>

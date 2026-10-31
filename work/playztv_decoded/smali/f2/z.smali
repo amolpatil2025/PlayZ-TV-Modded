@@ -1,0 +1,11 @@
+.class public interface abstract Lf2/z;
+.super Ljava/lang/Object;
+.source "r8-map-id-5487e3a952043c16a1f0e72280d7dda20d1e055338f26aa838ec3eeeaee64728"
+
+
+# virtual methods
+.method public abstract f(Ljava/util/UUID;Lf2/r;)[B
+.end method
+
+.method public abstract k(Lf2/t;)[B
+.end method

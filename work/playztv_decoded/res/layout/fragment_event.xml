@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@id/refresh_layout" android:background="@drawable/bg_app_glass" android:paddingLeft="@dimen/_3sdp" android:paddingRight="@dimen/_3sdp" android:layout_width="fill_parent" android:layout_height="fill_parent" android:paddingHorizontal="@dimen/_3sdp"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+        <LinearLayout android:orientation="vertical" android:id="@id/top" android:paddingLeft="5.0dip" android:paddingRight="5.0dip" android:layout_width="fill_parent" android:layout_height="wrap_content" android:paddingHorizontal="5.0dip">
+            <com.google.android.material.card.MaterialCardView android:id="@id/message_card" android:focusable="true" android:nextFocusDown="@id/event_type_rv" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_3sdp" android:layout_marginBottom="@dimen/_2sdp" android:elevation="0.0dip" android:backgroundTint="@color/card_back" app:cardCornerRadius="6.0dip" app:strokeColor="@color/card_stroke" app:strokeWidth="1.0dip">
+                <TextView android:ellipsize="marquee" android:id="@id/message_txt" android:focusable="false" android:clickable="false" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="4.0dip" android:scrollHorizontally="true" android:singleLine="true" android:freezesText="true" android:marqueeRepeatLimit="marquee_forever" android:layout_marginHorizontal="12.0dip" />
+            </com.google.android.material.card.MaterialCardView>
+            <androidx.recyclerview.widget.RecyclerView android:id="@id/event_type_rv" android:nextFocusUp="@id/message_card" android:layout_width="fill_parent" android:layout_height="wrap_content" />
+            <HorizontalScrollView android:id="@id/chipScroll" android:scrollbars="none" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <com.google.android.material.chip.ChipGroup android:id="@id/chipGroupFilter" android:layout_width="wrap_content" android:layout_height="wrap_content" app:chipSpacingHorizontal="@dimen/_5sdp" app:selectionRequired="false" app:singleSelection="true" />
+            </HorizontalScrollView>
+        </LinearLayout>
+        <androidx.recyclerview.widget.RecyclerView android:id="@id/recycler_view" android:layout_width="fill_parent" android:layout_height="fill_parent" android:layout_below="@id/top" />
+        <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/no_event_layout" android:visibility="gone" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="40.0dip" android:layout_below="@id/top" android:layout_centerHorizontal="true">
+            <ImageView android:id="@id/not_img" android:layout_width="@dimen/_150sdp" android:layout_height="@dimen/_150sdp" android:src="@drawable/ic_dissatisfied" />
+            <TextView android:textSize="@dimen/_12ssp" android:textStyle="bold" android:id="@id/not_available" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_5sdp" android:text="No Recent Event Available." />
+        </LinearLayout>
+    </RelativeLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

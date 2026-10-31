@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@id/videoAdContainer" android:background="#ff000000" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <ImageView android:id="@id/imageView" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" android:scaleType="fitXY" />
+    <androidx.media3.ui.PlayerView android:id="@id/playerView" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <View android:id="@id/view" android:background="@android:color/transparent" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <androidx.appcompat.widget.AppCompatButton android:enabled="false" android:textSize="@dimen/_13ssp" android:textColor="#ffffffff" android:layout_gravity="end|center|top" android:id="@id/skipButton" android:background="@drawable/round_button" android:paddingLeft="@dimen/_5sdp" android:paddingRight="@dimen/_5sdp" android:visibility="visible" android:layout_width="@dimen/_25sdp" android:layout_height="@dimen/_25sdp" android:layout_marginTop="@dimen/_5sdp" android:layout_marginEnd="@dimen/_10sdp" android:elevation="0.0dip" android:paddingHorizontal="@dimen/_5sdp" />
+</FrameLayout>

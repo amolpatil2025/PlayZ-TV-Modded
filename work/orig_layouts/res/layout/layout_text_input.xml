@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.textfield.TextInputLayout android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="@dimen/_5sdp" style="@style/Widget.Slopes.TextInputLayout.Form"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <com.google.android.material.textfield.TextInputEditText android:id="@id/text_input_edit_text" android:layout_width="fill_parent" android:layout_height="wrap_content" android:hint="Custom" style="@style/Widget.Slopes.TextInputEditText" />
+</com.google.android.material.textfield.TextInputLayout>

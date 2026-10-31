@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView android:id="@id/channel_card" android:focusable="true" android:clickable="true" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="3.0dip" android:backgroundTint="@color/card_back" app:cardCornerRadius="5.0dip" app:strokeColor="@color/card_stroke" app:strokeWidth="1.0dip"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <LinearLayout android:gravity="center" android:orientation="vertical" android:background="@android:color/transparent" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="3.0dip">
+        <RelativeLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_1sdp">
+            <com.google.android.material.imageview.ShapeableImageView android:id="@id/channel_img" android:background="@color/white" android:layout_width="70.0dip" android:layout_height="70.0dip" android:scaleType="fitCenter" android:layout_centerInParent="true" app:shapeAppearanceOverlay="@style/CircleShape" />
+            <com.google.android.material.imageview.ShapeableImageView android:background="@drawable/circular_bg" android:layout_width="72.0dip" android:layout_height="72.0dip" app:contentPadding="1.0dip" app:shapeAppearanceOverlay="@style/CircleShape" />
+            <ImageView android:id="@+id/status_dot" android:layout_width="14.0dip" android:layout_height="14.0dip" android:layout_alignParentEnd="true" android:layout_alignParentTop="true" android:contentDescription="@null" />
+        </RelativeLayout>
+        <TextView android:textAppearance="@style/TextAppearance.Material3.TitleSmall" android:textColor="@color/white" android:ellipsize="marquee" android:id="@id/channel_text_view" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginTop="3.0dip" android:maxLines="1" android:singleLine="true" android:marqueeRepeatLimit="marquee_forever" android:fontFamily="@font/alata_regular" android:textAlignment="center" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

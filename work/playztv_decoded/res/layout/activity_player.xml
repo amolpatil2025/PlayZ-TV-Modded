@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:background="@color/charcoal_black" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto">
+    <View android:id="@id/top_space" android:layout_width="fill_parent" android:layout_height="0.0dip" />
+    <androidx.fragment.app.FragmentContainerView android:id="@id/update_fragment_container" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" />
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_weight="1.0">
+        <RelativeLayout android:id="@id/playerLayout" android:background="@android:color/black" android:layout_width="fill_parent" android:layout_height="@dimen/_170sdp">
+            <androidx.media3.ui.PlayerView android:id="@id/player_view" android:background="@android:color/black" android:visibility="gone" android:layout_width="fill_parent" android:layout_height="fill_parent" app:auto_show="true" app:controller_layout_id="@layout/player_controller" app:resize_mode="fill" app:show_buffering="never" />
+            <ProgressBar android:id="@id/progress" android:layout_width="wrap_content" android:layout_height="wrap_content" android:indeterminate="true" android:layout_centerInParent="true" android:indeterminateTint="@android:color/white" />
+            <include android:id="@id/swipe_binding" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_centerInParent="true" layout="@layout/layout_swipe_gesture" />
+        </RelativeLayout>
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/links_lay" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="@dimen/_3sdp" />
+        <LinearLayout android:gravity="center_vertical" android:orientation="horizontal" android:id="@id/item_details_container" android:paddingLeft="@dimen/_8sdp" android:paddingTop="@dimen/_10sdp" android:paddingRight="@dimen/_8sdp" android:paddingBottom="@dimen/_10sdp" android:visibility="visible" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <androidx.constraintlayout.widget.ConstraintLayout android:gravity="center_vertical" android:orientation="horizontal" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="1.0">
+                <ImageView android:id="@id/teamAFlag" android:layout_width="38.0dip" android:layout_height="38.0dip" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.5" />
+                <LinearLayout android:gravity="center" android:orientation="vertical" android:id="@id/date_view" android:layout_width="wrap_content" android:layout_height="fill_parent" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toStartOf="@id/teamBFlag" app:layout_constraintStart_toEndOf="@id/teamAFlag" app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.5">
+                    <com.airbnb.lottie.LottieAnimationView android:id="@id/live_anim_view" android:visibility="gone" android:layout_width="45.0dip" android:layout_height="45.0dip" android:layout_marginTop="2.0dip" android:layout_marginBottom="2.0dip" android:layout_marginVertical="2.0dip" app:lottie_autoPlay="true" app:lottie_loop="true" app:lottie_rawRes="@raw/live" />
+                    <TextView android:textSize="11.699982sp" android:textStyle="bold" android:textColor="@color/app_color" android:id="@id/eventTime" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="01:00 PM" android:fontFamily="@font/font" />
+                    <TextView android:textSize="11.699982sp" android:textStyle="bold" android:textColor="@color/white" android:layout_gravity="center" android:id="@id/eventDate" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="01/01/2024" android:fontFamily="@font/font" />
+                </LinearLayout>
+                <ImageView android:id="@id/teamBFlag" android:layout_width="38.0dip" android:layout_height="38.0dip" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintVertical_bias="0.5" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+            <com.google.android.material.divider.MaterialDivider android:layout_width="1.0dip" android:layout_height="fill_parent" android:layout_marginStart="@dimen/_10sdp" app:dividerColor="@color/white" />
+            <LinearLayout android:gravity="center" android:orientation="vertical" android:layout_width="0.0dip" android:layout_height="wrap_content" android:layout_weight="0.4">
+                <ImageButton android:id="@id/share_app_btn" android:background="@null" android:focusable="true" android:clickable="true" android:src="@drawable/share_24px" style="@style/ExoStyledControls.Button.Bottom" />
+            </LinearLayout>
+        </LinearLayout>
+        <com.google.android.material.card.MaterialCardView android:id="@id/message_card" android:focusable="false" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_marginLeft="@dimen/_3sdp" android:layout_marginTop="@dimen/_4sdp" android:layout_marginRight="@dimen/_3sdp" android:backgroundTint="@color/event_background" android:layout_marginHorizontal="@dimen/_3sdp" app:cardCornerRadius="6.0dip" app:strokeColor="@color/stroke_color" app:strokeWidth="1.0dip">
+            <TextView android:ellipsize="marquee" android:id="@id/message_txt" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginLeft="12.0dip" android:layout_marginTop="4.0dip" android:layout_marginRight="12.0dip" android:layout_marginBottom="4.0dip" android:scrollHorizontally="true" android:singleLine="true" android:freezesText="true" android:marqueeRepeatLimit="marquee_forever" android:layout_marginHorizontal="12.0dip" />
+        </com.google.android.material.card.MaterialCardView>
+        <androidx.fragment.app.FragmentContainerView android:id="@id/fragment_container" android:layout_width="fill_parent" android:layout_height="0.0dip" android:layout_marginTop="@dimen/_5sdp" android:layout_weight="1.0" />
+        <include android:id="@id/bannerBind" android:layout_width="fill_parent" android:layout_height="wrap_content" layout="@layout/item_banner" />
+    </LinearLayout>
+    <View android:id="@id/bottom_space" android:layout_width="fill_parent" android:layout_height="0.0dip" />
+</LinearLayout>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<defaultsMap>
+    <entry>
+        <key>proxy_url</key>
+        <value />
+    </entry>
+    <entry>
+        <key>backup_config</key>
+        <value>https://voltsphere.pages.dev/api-url.json</value>
+    </entry>
+    <entry>
+        <key>api_url</key>
+        <value>https://hey-lookme.shop/</value>
+    </entry>
+    <entry>
+        <key>telegram_url</key>
+        <value>https://t.me/playztv</value>
+    </entry>
+    <entry>
+        <key>web_url</key>
+        <value>https://playztv.online/</value>
+    </entry>
+</defaultsMap>
