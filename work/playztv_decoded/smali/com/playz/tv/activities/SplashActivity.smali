@@ -1705,7 +1705,7 @@
     .line 24
     .line 25
     .line 26
-    const-wide/16 v1, 0x1f4
+    const-wide/16 v1, 0x9c4
 
     .line 27
     .line 28
@@ -1985,7 +1985,7 @@
     .line 26
     .line 27
     .line 28
-    const-wide/16 v2, 0x1f4
+    const-wide/16 v2, 0x9c4
 
     .line 29
     .line 30
