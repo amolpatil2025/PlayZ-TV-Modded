@@ -19,6 +19,14 @@ Modified Android TV APK based on PlayZ TV, rebranded as **Amol TV**.
 
 ![Amol TV home Favourites](pic/home.png)
 
+### Categories
+
+![Amol TV Categories](pic/categories.png)
+
+### Player
+
+![Amol TV player](pic/player.png)
+
 ## Install on Android TV
 
 ### Option A — USB stick (no PC)
