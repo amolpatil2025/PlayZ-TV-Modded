@@ -53,29 +53,13 @@
     .line 7
     if-eqz v0, :cond_0
 
-    .line 8
-    .line 9
-    iget-object v0, p1, Lic/h;->d:Lcom/playz/tv/app/ProApplication;
+    # Already favourite: move / export / remove
+    iget-object v0, p1, Lic/h;->e:Lh/i;
 
-    .line 10
-    .line 11
-    iget-boolean v0, v0, Lcom/playz/tv/app/ProApplication;->O:Z
+    iget-object v1, v2, Lqc/c;->a:Ljava/lang/String;
 
-    .line 12
-    .line 13
-    if-eqz v0, :cond_0
+    invoke-static {v0, v1}, Lcom/playz/tv/utils/FavouritesStore;->onFavouriteLongPress(Landroid/content/Context;Ljava/lang/String;)V
 
-    .line 14
-    .line 15
-    iget-object v0, v2, Lqc/c;->a:Ljava/lang/String;
-
-    .line 16
-    .line 17
-    invoke-virtual {p1, v0}, Lic/h;->g(Ljava/lang/String;)V
-
-    .line 18
-    .line 19
-    .line 20
     goto :goto_0
 
     .line 21

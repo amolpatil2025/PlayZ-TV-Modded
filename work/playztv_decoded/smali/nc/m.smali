@@ -590,6 +590,9 @@
     .line 37
     iput-object p2, p0, Lnc/m;->v0:Lh4/z;
 
+    # Export / Import toolbar on Favourites page
+    invoke-static {p1}, Lcom/playz/tv/utils/FavouritesStore;->attachToolbar(Landroid/view/View;)V
+
     .line 38
     .line 39
     return-object p1

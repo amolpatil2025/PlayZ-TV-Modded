@@ -4779,6 +4779,9 @@
     .line 2277
     iput-boolean v12, v5, Lqc/c;->g:Z
 
+    # Mark as favourite so long-press opens move/export/remove menu
+    iput-boolean v12, v5, Lqc/c;->i:Z
+
     .line 2278
     .line 2279
     invoke-virtual {v3, v5}, Ljava/util/ArrayList;->add(Ljava/lang/Object;)Z

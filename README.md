@@ -13,6 +13,8 @@ Modified Android TV APK based on Live TV, rebranded as **Amol TV**.
 - Startup tab: **Favourites**
 - Top tabs order: Categories → Favourites → Live Events → Sports → H → Settings
 - Green / red online–offline status dots on channel logos
+- Favourites **Export / Import** buttons (saves to `Download/AmolTV/favourites.json`, with app-files fallback)
+- Long-press a favourite → **Move left / Move right / Export all / Remove**
 
 ## Screenshots
 
@@ -31,6 +33,16 @@ Modified Android TV APK based on Live TV, rebranded as **Amol TV**.
 ### Player
 
 ![Amol TV player](pic/player.png)
+
+## Favourites file + reorder
+
+On the **Favourites** tab:
+
+1. Use **Export** / **Import** (top-right) to save or restore the list.
+2. File path: `Download/AmolTV/favourites.json` (or app Documents if Download is blocked).
+3. Long-press a channel → **Move left** / **Move right** to change position, or **Remove**.
+
+Copy `favourites.json` to another TV and tap **Import** to restore the same list/order.
 
 ## Install on Android TV
 
