@@ -88,7 +88,7 @@ public final class FavouritesStore {
             @Override public void onClick(View v) { exportAsync(ctx); }
         });
         importBtn.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) { importAsync(ctx); }
+            @Override public void onClick(View v) { chooseImportFile(ctx); }
         });
         exportBtn.setOnFocusChangeListener(focusGlow(exportBtn));
         importBtn.setOnFocusChangeListener(focusGlow(importBtn));
@@ -141,18 +141,54 @@ public final class FavouritesStore {
         });
     }
 
+    /** Scan AmolTV folders for *.json and let user pick one to import. */
+    public static void chooseImportFile(final Context ctx) {
+        EXEC.execute(new Runnable() {
+            @Override public void run() {
+                final List<File> files = listJsonFiles(ctx);
+                MAIN.post(new Runnable() {
+                    @Override public void run() {
+                        if (files.isEmpty()) {
+                            toast(ctx, "No .json files in AmolTV folders\n"
+                                    + "Put files in Download/AmolTV/");
+                            return;
+                        }
+                        final CharSequence[] labels = new CharSequence[files.size()];
+                        for (int i = 0; i < files.size(); i++) {
+                            File f = files.get(i);
+                            labels[i] = f.getName() + "  (" + readableSize(f.length()) + ")";
+                        }
+                        new AlertDialog.Builder(ctx)
+                                .setTitle("Import favourites")
+                                .setItems(labels, new android.content.DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(android.content.DialogInterface dialog, int which) {
+                                        importFileAsync(ctx, files.get(which));
+                                    }
+                                })
+                                .setNegativeButton("Cancel", null)
+                                .show();
+                    }
+                });
+            }
+        });
+    }
+
     public static void importAsync(final Context ctx) {
+        chooseImportFile(ctx);
+    }
+
+    public static void importFileAsync(final Context ctx, final File in) {
         EXEC.execute(new Runnable() {
             @Override public void run() {
                 String msg;
                 try {
-                    File in = findImportFile(ctx);
                     if (in == null || !in.exists()) {
-                        msg = "No favourites.json found in Download/AmolTV or app files";
+                        msg = "File not found";
                     } else {
                         JSONArray arr = readJson(in);
                         int n = replaceAll(ctx, arr);
-                        msg = "Imported " + n + " favourites\n" + in.getAbsolutePath();
+                        msg = "Imported " + n + " from " + in.getName();
                     }
                 } catch (Throwable t) {
                     msg = "Import failed: " + t.getMessage();
@@ -256,20 +292,87 @@ public final class FavouritesStore {
         return new File(dir, "favourites.json");
     }
 
-    private static File findImportFile(Context ctx) {
-        File[] candidates = new File[] {
-                new File(new File(Environment.getExternalStoragePublicDirectory(
-                        Environment.DIRECTORY_DOWNLOADS), "AmolTV"), "favourites.json"),
-                new File(new File("/sdcard/Download/AmolTV"), "favourites.json"),
-                new File(new File("/sdcard/AmolTV"), "favourites.json"),
-                new File(preferredDir(ctx, false), "favourites.json")
-        };
-        for (File f : candidates) {
-            if (f != null && f.exists() && f.canRead()) {
-                return f;
+    private static List<File> amolDirs(Context ctx) {
+        List<File> dirs = new ArrayList<File>();
+        addUniqueDir(dirs, new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS), "AmolTV"));
+        addUniqueDir(dirs, new File("/sdcard/Download/AmolTV"));
+        addUniqueDir(dirs, new File("/sdcard/AmolTV"));
+        addUniqueDir(dirs, preferredDir(ctx, false));
+        return dirs;
+    }
+
+    private static void addUniqueDir(List<File> dirs, File dir) {
+        if (dir == null) {
+            return;
+        }
+        try {
+            String path = dir.getCanonicalPath();
+            for (File existing : dirs) {
+                if (existing.getCanonicalPath().equals(path)) {
+                    return;
+                }
+            }
+        } catch (Throwable ignored) {
+            for (File existing : dirs) {
+                if (existing.getAbsolutePath().equals(dir.getAbsolutePath())) {
+                    return;
+                }
             }
         }
-        return null;
+        dirs.add(dir);
+    }
+
+    /** All readable *.json under AmolTV folders, newest first. */
+    private static List<File> listJsonFiles(Context ctx) {
+        List<File> out = new ArrayList<File>();
+        java.util.LinkedHashSet<String> seen = new java.util.LinkedHashSet<String>();
+        for (File dir : amolDirs(ctx)) {
+            if (dir == null || !dir.isDirectory()) {
+                continue;
+            }
+            File[] files = dir.listFiles();
+            if (files == null) {
+                continue;
+            }
+            for (File f : files) {
+                if (f == null || !f.isFile() || !f.canRead()) {
+                    continue;
+                }
+                String name = f.getName();
+                if (name == null || !name.toLowerCase().endsWith(".json")) {
+                    continue;
+                }
+                String key;
+                try {
+                    key = f.getCanonicalPath();
+                } catch (Throwable t) {
+                    key = f.getAbsolutePath();
+                }
+                if (seen.add(key)) {
+                    out.add(f);
+                }
+            }
+        }
+        java.util.Collections.sort(out, new java.util.Comparator<File>() {
+            @Override public int compare(File a, File b) {
+                long d = b.lastModified() - a.lastModified();
+                if (d > 0) return 1;
+                if (d < 0) return -1;
+                return a.getName().compareToIgnoreCase(b.getName());
+            }
+        });
+        return out;
+    }
+
+    private static String readableSize(long bytes) {
+        if (bytes < 1024) {
+            return bytes + " B";
+        }
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024) + " KB";
+        }
+        return (bytes / (1024 * 1024)) + " MB";
     }
 
     private static File preferredDir(Context ctx, boolean forWrite) {

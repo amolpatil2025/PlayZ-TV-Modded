@@ -39,10 +39,11 @@ Modified Android TV APK based on Live TV, rebranded as **Amol TV**.
 On the **Favourites** tab:
 
 1. Use **Export** / **Import** (top-right) to save or restore the list.
-2. File path: `Download/AmolTV/favourites.json` (or app Documents if Download is blocked).
-3. Long-press a channel → **Move left** / **Move right** to change position, or **Remove**.
+2. Export writes `Download/AmolTV/favourites.json` (app Documents fallback if needed).
+3. **Import** lists every `.json` in AmolTV folders — pick one to load.
+4. Long-press a channel → **Move left** / **Move right** to change position, or **Remove**.
 
-Copy `favourites.json` to another TV and tap **Import** to restore the same list/order.
+Copy any favourites `.json` into `Download/AmolTV/` on another TV, tap **Import**, and choose the file.
 
 ## Install on Android TV
 
