@@ -593,6 +593,8 @@
     # Export / Import toolbar on Favourites page
     invoke-static {p1}, Lcom/playz/tv/utils/FavouritesStore;->attachToolbar(Landroid/view/View;)V
 
+    invoke-static {p0}, Lcom/playz/tv/utils/FavouritesStore;->bindHost(Ljava/lang/Object;)V
+
     .line 38
     .line 39
     return-object p1

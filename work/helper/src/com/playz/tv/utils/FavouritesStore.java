@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -48,8 +49,34 @@ public final class FavouritesStore {
     private static final String DB_NAME = "favorites_db";
     private static final String TABLE = "fav_channels";
     private static final Charset UTF8 = Charset.forName("UTF-8");
+    /** Favourites fragment (nc.m) — used to reload Room LiveData after DB writes. */
+    private static WeakReference<Object> hostRef;
 
     private FavouritesStore() {}
+
+    /** Called from Favourites fragment after view create. */
+    public static void bindHost(Object fragment) {
+        if (fragment != null) {
+            hostRef = new WeakReference<Object>(fragment);
+        }
+    }
+
+    /** Re-run Favourites LiveData query so Import/move/remove show up immediately. */
+    private static void refreshFavouritesUi() {
+        // Small delay so SQLite WAL commit is visible to Room's connection.
+        MAIN.postDelayed(new Runnable() {
+            @Override public void run() {
+                try {
+                    Object host = hostRef != null ? hostRef.get() : null;
+                    if (host == null) {
+                        return;
+                    }
+                    // Obfuscated Favourites reload: nc.m.F() re-subscribes LiveData.
+                    host.getClass().getMethod("F").invoke(host);
+                } catch (Throwable ignored) {}
+            }
+        }, 250);
+    }
 
     public static void attachToolbar(final View root) {
         if (root == null || !(root instanceof RelativeLayout)) {
@@ -275,6 +302,7 @@ public final class FavouritesStore {
         EXEC.execute(new Runnable() {
             @Override public void run() {
                 String msg;
+                boolean ok = false;
                 try {
                     if (in == null || !in.exists()) {
                         msg = "File not found";
@@ -282,11 +310,15 @@ public final class FavouritesStore {
                         JSONArray arr = readJson(in);
                         int n = replaceAll(ctx, arr);
                         msg = "Imported " + n + " from " + in.getName();
+                        ok = n >= 0;
                     }
                 } catch (Throwable t) {
                     msg = "Import failed: " + t.getMessage();
                 }
                 toast(ctx, msg);
+                if (ok) {
+                    refreshFavouritesUi();
+                }
             }
         });
     }
@@ -295,6 +327,7 @@ public final class FavouritesStore {
         EXEC.execute(new Runnable() {
             @Override public void run() {
                 String msg;
+                boolean ok = false;
                 try {
                     List<Fav> list = loadList(ctx);
                     int idx = indexOf(list, name);
@@ -313,12 +346,16 @@ public final class FavouritesStore {
                                 writeJson(exportFile(ctx), toJson(list));
                             } catch (Throwable ignored) {}
                             msg = "Moved " + name;
+                            ok = true;
                         }
                     }
                 } catch (Throwable t) {
                     msg = "Move failed: " + t.getMessage();
                 }
                 toast(ctx, msg);
+                if (ok) {
+                    refreshFavouritesUi();
+                }
             }
         });
     }
@@ -327,6 +364,7 @@ public final class FavouritesStore {
         EXEC.execute(new Runnable() {
             @Override public void run() {
                 String msg;
+                boolean ok = false;
                 try {
                     List<Fav> list = loadList(ctx);
                     int idx = indexOf(list, name);
@@ -339,11 +377,15 @@ public final class FavouritesStore {
                             writeJson(exportFile(ctx), toJson(list));
                         } catch (Throwable ignored) {}
                         msg = "Removed " + name;
+                        ok = true;
                     }
                 } catch (Throwable t) {
                     msg = "Remove failed: " + t.getMessage();
                 }
                 toast(ctx, msg);
+                if (ok) {
+                    refreshFavouritesUi();
+                }
             }
         });
     }
@@ -627,7 +669,27 @@ public final class FavouritesStore {
     }
 
     private static void writeList(Context ctx, List<Fav> list) throws Exception {
-        SQLiteDatabase db = open(ctx, true);
+        // Prefer Room's own SQLite connection so InvalidationTracker fires and LiveData refreshes.
+        SQLiteDatabase db = null;
+        boolean roomOwned = false;
+        Object room = null;
+        try {
+            room = Class.forName("com.playz.tv.room.db.AppDatabase")
+                    .getMethod("s", Context.class)
+                    .invoke(null, ctx.getApplicationContext());
+            Object helper = room.getClass().getMethod("i").invoke(room);
+            Object supportDb = helper.getClass().getMethod("X").invoke(helper);
+            java.lang.reflect.Field uf = supportDb.getClass().getDeclaredField("u");
+            uf.setAccessible(true);
+            db = (SQLiteDatabase) uf.get(supportDb);
+            roomOwned = db != null;
+        } catch (Throwable ignored) {
+            db = null;
+            roomOwned = false;
+        }
+        if (db == null) {
+            db = open(ctx, true);
+        }
         db.beginTransaction();
         try {
             db.execSQL("DELETE FROM " + TABLE);
@@ -639,7 +701,14 @@ public final class FavouritesStore {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
-            db.close();
+            if (!roomOwned) {
+                db.close();
+            }
+        }
+        if (room != null) {
+            try {
+                room.getClass().getMethod("n").invoke(room);
+            } catch (Throwable ignored) {}
         }
     }
 
