@@ -1,14 +1,22 @@
 package com.playz.tv.utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.MediaStore;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -143,8 +151,12 @@ public final class FavouritesStore {
 
     /** Scan AmolTV folders for *.json and let user pick one to import. */
     public static void chooseImportFile(final Context ctx) {
+        if (!ensureStorageAccess(ctx)) {
+            return;
+        }
         EXEC.execute(new Runnable() {
             @Override public void run() {
+                scanAmolDirs(ctx);
                 final List<File> files = listJsonFiles(ctx);
                 MAIN.post(new Runnable() {
                     @Override public void run() {
@@ -156,7 +168,9 @@ public final class FavouritesStore {
                         final CharSequence[] labels = new CharSequence[files.size()];
                         for (int i = 0; i < files.size(); i++) {
                             File f = files.get(i);
-                            labels[i] = f.getName() + "  (" + readableSize(f.length()) + ")";
+                            String parent = f.getParentFile() != null ? f.getParentFile().getName() : "";
+                            labels[i] = f.getName() + "  ·  " + readableSize(f.length())
+                                    + "  ·  " + parent;
                         }
                         new AlertDialog.Builder(ctx)
                                 .setTitle("Import favourites")
@@ -172,6 +186,85 @@ public final class FavouritesStore {
                 });
             }
         });
+    }
+
+    /** Returns false if user must grant access first (Import again after). */
+    private static boolean ensureStorageAccess(Context ctx) {
+        try {
+            int target = ctx.getApplicationInfo().targetSdkVersion;
+            if (Build.VERSION.SDK_INT >= 30) {
+                if (Environment.isExternalStorageManager()) {
+                    return true;
+                }
+                // targetSdk 30+ needs all-files access to see user-copied JSON
+                if (target >= 30) {
+                    try {
+                        Intent i = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+                        i.setData(Uri.parse("package:" + ctx.getPackageName()));
+                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        ctx.startActivity(i);
+                    } catch (Throwable t) {
+                        try {
+                            Intent i = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            ctx.startActivity(i);
+                        } catch (Throwable ignored) {}
+                    }
+                    toast(ctx, "Allow all-files access for Amol TV, then tap Import again");
+                    return false;
+                }
+                // targetSdk <= 29: legacy storage + READ is enough — fall through
+            }
+            if (Build.VERSION.SDK_INT >= 23) {
+                String read = "android.permission.READ_EXTERNAL_STORAGE";
+                String write = "android.permission.WRITE_EXTERNAL_STORAGE";
+                boolean needRead = ctx.checkSelfPermission(read) != PackageManager.PERMISSION_GRANTED;
+                boolean needWrite = ctx.checkSelfPermission(write) != PackageManager.PERMISSION_GRANTED;
+                if (needRead || needWrite) {
+                    if (ctx instanceof Activity) {
+                        ((Activity) ctx).requestPermissions(
+                                new String[] { read, write }, 7711);
+                    }
+                    toast(ctx, "Allow storage access, then tap Import again");
+                    return false;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return true;
+    }
+
+    private static void scanAmolDirs(Context ctx) {
+        try {
+            List<File> dirs = amolDirs(ctx);
+            List<String> paths = new ArrayList<String>();
+            for (File dir : dirs) {
+                if (dir == null || !dir.isDirectory()) continue;
+                paths.add(dir.getAbsolutePath());
+                File[] kids = dir.listFiles();
+                if (kids == null) continue;
+                for (int i = 0; i < kids.length; i++) {
+                    if (kids[i] != null && kids[i].isFile()) {
+                        paths.add(kids[i].getAbsolutePath());
+                    }
+                }
+                // Explicit names even if listFiles hid them
+                String[] names = new String[] {
+                        "favourites.json", "favourites0.json", "favourites1.json",
+                        "favourites_backup.json", "favorites.json", "favorites0.json"
+                };
+                for (int i = 0; i < names.length; i++) {
+                    paths.add(new File(dir, names[i]).getAbsolutePath());
+                }
+                for (int n = 2; n <= 9; n++) {
+                    paths.add(new File(dir, "favourites" + n + ".json").getAbsolutePath());
+                }
+            }
+            if (!paths.isEmpty()) {
+                MediaScannerConnection.scanFile(ctx,
+                        paths.toArray(new String[paths.size()]), null, null);
+                try { Thread.sleep(400); } catch (InterruptedException ignored) {}
+            }
+        } catch (Throwable ignored) {}
     }
 
     public static void importAsync(final Context ctx) {
@@ -327,33 +420,31 @@ public final class FavouritesStore {
     private static List<File> listJsonFiles(Context ctx) {
         List<File> out = new ArrayList<File>();
         java.util.LinkedHashSet<String> seen = new java.util.LinkedHashSet<String>();
+
+        // 1) Direct folder listing
         for (File dir : amolDirs(ctx)) {
-            if (dir == null || !dir.isDirectory()) {
-                continue;
+            addJsonFromDir(dir, out, seen);
+        }
+
+        // 2) MediaStore (sees user-copied files that File.listFiles may hide)
+        addJsonFromMediaStore(ctx, out, seen);
+
+        // 3) Explicit known names (covers favourites0.json etc. if listing is filtered)
+        String[] names = new String[] {
+                "favourites.json", "favourites0.json", "favourites1.json",
+                "favourites_backup.json", "favorites.json", "favorites0.json"
+        };
+        for (File dir : amolDirs(ctx)) {
+            if (dir == null) continue;
+            for (int i = 0; i < names.length; i++) {
+                addJsonFile(new File(dir, names[i]), out, seen);
             }
-            File[] files = dir.listFiles();
-            if (files == null) {
-                continue;
-            }
-            for (File f : files) {
-                if (f == null || !f.isFile() || !f.canRead()) {
-                    continue;
-                }
-                String name = f.getName();
-                if (name == null || !name.toLowerCase().endsWith(".json")) {
-                    continue;
-                }
-                String key;
-                try {
-                    key = f.getCanonicalPath();
-                } catch (Throwable t) {
-                    key = f.getAbsolutePath();
-                }
-                if (seen.add(key)) {
-                    out.add(f);
-                }
+            // also favourites2..favourites9
+            for (int n = 2; n <= 9; n++) {
+                addJsonFile(new File(dir, "favourites" + n + ".json"), out, seen);
             }
         }
+
         java.util.Collections.sort(out, new java.util.Comparator<File>() {
             @Override public int compare(File a, File b) {
                 long d = b.lastModified() - a.lastModified();
@@ -363,6 +454,121 @@ public final class FavouritesStore {
             }
         });
         return out;
+    }
+
+    private static void addJsonFromDir(File dir, List<File> out, java.util.Set<String> seen) {
+        if (dir == null || !dir.isDirectory()) {
+            return;
+        }
+        File[] files = dir.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (int i = 0; i < files.length; i++) {
+            File f = files[i];
+            if (f == null || !f.isFile()) {
+                continue;
+            }
+            String name = f.getName();
+            if (name == null || !name.toLowerCase().endsWith(".json")) {
+                continue;
+            }
+            addJsonFile(f, out, seen);
+        }
+    }
+
+    private static void addJsonFromMediaStore(Context ctx, List<File> out, java.util.Set<String> seen) {
+        Cursor c = null;
+        try {
+            Uri uri = MediaStore.Files.getContentUri("external");
+            String[] proj;
+            String pathCol;
+            if (Build.VERSION.SDK_INT >= 29) {
+                pathCol = MediaStore.MediaColumns.RELATIVE_PATH;
+                proj = new String[] {
+                        MediaStore.MediaColumns.DISPLAY_NAME,
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        MediaStore.MediaColumns.DATA
+                };
+            } else {
+                pathCol = MediaStore.MediaColumns.DATA;
+                proj = new String[] {
+                        MediaStore.MediaColumns.DISPLAY_NAME,
+                        MediaStore.MediaColumns.DATA
+                };
+            }
+            String sel = "(" + MediaStore.MediaColumns.DISPLAY_NAME + " LIKE ? )"
+                    + " AND (" + pathCol + " LIKE ? OR " + pathCol + " LIKE ? OR "
+                    + MediaStore.MediaColumns.DATA + " LIKE ? OR "
+                    + MediaStore.MediaColumns.DATA + " LIKE ? )";
+            String[] args = new String[] {
+                    "%.json",
+                    "%AmolTV%",
+                    "%/AmolTV/%",
+                    "%/AmolTV/%",
+                    "%AmolTV%"
+            };
+            c = ctx.getContentResolver().query(uri, proj, sel, args, null);
+            if (c == null) {
+                return;
+            }
+            int nameIdx = c.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME);
+            int dataIdx = c.getColumnIndex(MediaStore.MediaColumns.DATA);
+            while (c.moveToNext()) {
+                String name = nameIdx >= 0 ? c.getString(nameIdx) : null;
+                String data = dataIdx >= 0 ? c.getString(dataIdx) : null;
+                if (name == null || !name.toLowerCase().endsWith(".json")) {
+                    continue;
+                }
+                if (data != null && data.length() > 0) {
+                    addJsonFile(new File(data), out, seen);
+                } else if (name != null) {
+                    // DATA may be null on newer APIs — try AmolTV folders by name
+                    for (File dir : amolDirs(ctx)) {
+                        addJsonFile(new File(dir, name), out, seen);
+                    }
+                }
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            if (c != null) {
+                try { c.close(); } catch (Throwable ignored) {}
+            }
+        }
+    }
+
+    private static void addJsonFile(File f, List<File> out, java.util.Set<String> seen) {
+        if (f == null) {
+            return;
+        }
+        // Scoped storage: isFile()/canRead() can lie for user-copied files.
+        boolean ok = false;
+        try {
+            if (f.isFile() && (f.canRead() || f.length() > 0)) {
+                ok = true;
+            } else if (f.exists() && f.length() > 0) {
+                ok = true;
+            } else {
+                // Last resort: try opening (works after MANAGE_EXTERNAL_STORAGE / legacy)
+                FileInputStream in = new FileInputStream(f);
+                in.close();
+                ok = true;
+            }
+        } catch (Throwable ignored) {
+            ok = false;
+        }
+        if (!ok) {
+            return;
+        }
+        String key;
+        try {
+            key = f.getCanonicalPath();
+        } catch (Throwable t) {
+            key = f.getAbsolutePath();
+        }
+        if (seen.add(key)) {
+            out.add(f);
+        }
     }
 
     private static String readableSize(long bytes) {
