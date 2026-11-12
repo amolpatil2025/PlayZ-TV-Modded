@@ -1087,6 +1087,23 @@
     .line 410
     :catch_4
     :cond_a
+    # If channel was not found in playlist, v3 is still https://error.m3u8.
+    # Signal failure (false) so player does not try JSONArray(error.m3u8) → JSONException toast.
+    const-string v0, "https://error.m3u8"
+
+    invoke-virtual {v3, v0}, Ljava/lang/String;->equals(Ljava/lang/Object;)Z
+
+    move-result v0
+
+    if-eqz v0, :cond_found_ok
+
+    const/4 v0, 0x0
+
+    invoke-static {v2, v0, v3}, Lq1/c;->N(Lrc/j;ZLjava/lang/String;)V
+
+    return-void
+
+    :cond_found_ok
     const/4 v0, 0x1
 
     .line 411

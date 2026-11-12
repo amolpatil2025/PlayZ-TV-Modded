@@ -58,7 +58,105 @@ public final class FavouritesStore {
     public static void bindHost(Object fragment) {
         if (fragment != null) {
             hostRef = new WeakReference<Object>(fragment);
+            try {
+                Context ctx = null;
+                try {
+                    ctx = (Context) fragment.getClass().getMethod("J").invoke(fragment);
+                } catch (Throwable ignored) {}
+                if (ctx == null) {
+                    try {
+                        ctx = (Context) fragment.getClass().getMethod("j").invoke(fragment);
+                    } catch (Throwable ignored) {}
+                }
+                if (ctx != null) {
+                    sanitizeExistingAsync(ctx);
+                }
+            } catch (Throwable ignored) {}
         }
+    }
+
+    /**
+     * Fix already-imported rows: wrap plain URLs as JSON arrays, restore playlists
+     * wiped by an earlier build (from Download/AmolTV/*.json), and drop only stub
+     * playlists that never contain real channels.
+     */
+    private static void sanitizeExistingAsync(final Context ctx) {
+        EXEC.execute(new Runnable() {
+            @Override public void run() {
+                try {
+                    java.util.Map<String, Fav> backup = loadBackupByName(ctx);
+                    List<Fav> list = loadList(ctx);
+                    boolean changed = false;
+                    for (int i = 0; i < list.size(); i++) {
+                        Fav before = list.get(i);
+                        String oldLink = before.link;
+                        String oldPl = before.playlist == null ? "" : before.playlist;
+                        // Restore playlist/link details from on-disk import file if wiped
+                        Fav bak = backup.get(before.name);
+                        if (bak != null) {
+                            if ((before.playlist == null || before.playlist.length() == 0)
+                                    && bak.playlist != null && bak.playlist.length() > 0) {
+                                before.playlist = bak.playlist;
+                            }
+                            if ((before.link == null || before.link.length() == 0)
+                                    && bak.link != null && bak.link.length() > 0) {
+                                before.link = bak.link;
+                            }
+                            if ((before.image == null || before.image.length() == 0)
+                                    && bak.image != null) {
+                                before.image = bak.image;
+                            }
+                        }
+                        normalizeFav(before);
+                        String newPl = before.playlist == null ? "" : before.playlist;
+                        if ((oldLink == null && before.link != null)
+                                || (oldLink != null && !oldLink.equals(before.link))
+                                || !oldPl.equals(newPl)) {
+                            changed = true;
+                        }
+                    }
+                    if (changed) {
+                        writeList(ctx, list);
+                        refreshFavouritesUi();
+                    }
+                } catch (Throwable ignored) {}
+            }
+        });
+    }
+
+    /** Load channel name → fav from Download/AmolTV JSON backups (newest wins). */
+    private static java.util.Map<String, Fav> loadBackupByName(Context ctx) {
+        java.util.HashMap<String, Fav> map = new java.util.HashMap<String, Fav>();
+        try {
+            List<File> files = listJsonFiles(ctx);
+            // Oldest first so newer files overwrite
+            java.util.Collections.sort(files, new java.util.Comparator<File>() {
+                @Override public int compare(File a, File b) {
+                    long d = a.lastModified() - b.lastModified();
+                    if (d < 0) return -1;
+                    if (d > 0) return 1;
+                    return 0;
+                }
+            });
+            for (int i = 0; i < files.size(); i++) {
+                try {
+                    JSONArray arr = readJson(files.get(i));
+                    for (int j = 0; j < arr.length(); j++) {
+                        JSONObject o = arr.optJSONObject(j);
+                        if (o == null) continue;
+                        String name = o.optString("name", "");
+                        if (name.length() == 0) continue;
+                        Fav f = new Fav();
+                        f.name = name;
+                        f.image = o.optString("image", "");
+                        f.link = o.optString("link", "");
+                        f.playlist = o.optString("playlist", "");
+                        map.put(name, f);
+                    }
+                } catch (Throwable ignored) {}
+            }
+        } catch (Throwable ignored) {}
+        return map;
     }
 
     /** Re-run Favourites LiveData query so Import/move/remove show up immediately. */
@@ -95,13 +193,16 @@ public final class FavouritesStore {
 
         Button exportBtn = makeBtn(ctx, "Export");
         Button importBtn = makeBtn(ctx, "Import");
+        Button clearBtn = makeBtn(ctx, "Clear all");
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.setMargins(dp(ctx, 6), 0, 0, 0);
         exportBtn.setLayoutParams(lp);
         importBtn.setLayoutParams(lp);
+        clearBtn.setLayoutParams(lp);
         bar.addView(exportBtn);
         bar.addView(importBtn);
+        bar.addView(clearBtn);
 
         RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -125,8 +226,12 @@ public final class FavouritesStore {
         importBtn.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) { chooseImportFile(ctx); }
         });
+        clearBtn.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) { confirmClearAll(ctx); }
+        });
         exportBtn.setOnFocusChangeListener(focusGlow(exportBtn));
         importBtn.setOnFocusChangeListener(focusGlow(importBtn));
+        clearBtn.setOnFocusChangeListener(focusGlow(clearBtn));
     }
 
     public static void onFavouriteLongPress(final Context ctx, final String name) {
@@ -137,7 +242,8 @@ public final class FavouritesStore {
                 "Move left",
                 "Move right",
                 "Export all",
-                "Remove from favourites"
+                "Remove from favourites",
+                "Delete all favourites"
         };
         new AlertDialog.Builder(ctx)
                 .setTitle(name)
@@ -152,11 +258,55 @@ public final class FavouritesStore {
                             exportAsync(ctx);
                         } else if (which == 3) {
                             removeAsync(ctx, name);
+                        } else if (which == 4) {
+                            confirmClearAll(ctx);
                         }
                     }
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    public static void confirmClearAll(final Context ctx) {
+        if (ctx == null) {
+            return;
+        }
+        new AlertDialog.Builder(ctx)
+                .setTitle("Delete all favourites")
+                .setMessage("Remove every channel from favourites?")
+                .setPositiveButton("Delete all", new android.content.DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(android.content.DialogInterface dialog, int which) {
+                        clearAllAsync(ctx);
+                    }
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    public static void clearAllAsync(final Context ctx) {
+        EXEC.execute(new Runnable() {
+            @Override public void run() {
+                String msg;
+                boolean ok = false;
+                try {
+                    List<Fav> list = loadList(ctx);
+                    int n = list.size();
+                    writeList(ctx, new ArrayList<Fav>());
+                    try {
+                        writeJson(exportFile(ctx), new JSONArray());
+                    } catch (Throwable ignored) {}
+                    msg = "Deleted " + n + " favourites";
+                    ok = true;
+                } catch (Throwable t) {
+                    msg = "Delete all failed: " + t.getMessage();
+                }
+                toast(ctx, msg);
+                if (ok) {
+                    refreshFavouritesUi();
+                }
+            }
+        });
     }
 
     public static void exportAsync(final Context ctx) {
@@ -721,12 +871,89 @@ public final class FavouritesStore {
             f.image = o.optString("image", "");
             f.link = o.optString("link", "");
             f.playlist = o.optString("playlist", "");
+            normalizeFav(f);
             if (f.name.length() > 0) {
                 list.add(f);
             }
         }
         writeList(ctx, list);
         return list.size();
+    }
+
+    /**
+     * Ensure link is a JSON array the player can parse.
+     * Keep real playlists (Hotstar/Sun NXT need them for fresh tokens).
+     * Drop only known stub playlists that never contain the channel.
+     */
+    private static void normalizeFav(Fav f) {
+        if (f == null) {
+            return;
+        }
+        if (f.name == null) {
+            f.name = "";
+        }
+        if (f.image == null) {
+            f.image = "";
+        }
+        if (f.link == null) {
+            f.link = "";
+        }
+        if (f.playlist == null) {
+            f.playlist = "";
+        }
+        String link = f.link.trim();
+        try {
+            if (link.startsWith("[")) {
+                JSONArray arr = new JSONArray(link);
+                for (int i = 0; i < arr.length(); i++) {
+                    JSONObject o = arr.optJSONObject(i);
+                    if (o == null) {
+                        continue;
+                    }
+                    if (!o.has("channel") || o.optString("channel", "").length() == 0) {
+                        o.put("channel", f.name);
+                    }
+                    if (!o.has("name") || o.optString("name", "").length() == 0) {
+                        o.put("name", "Link 1");
+                    }
+                    // Keep playlist on the fav column; strip only embedded key so
+                    // injection from DB column remains the single source of truth.
+                    if (o.has("playlist")) {
+                        o.remove("playlist");
+                    }
+                }
+                f.link = arr.toString();
+            } else if (link.startsWith("http://") || link.startsWith("https://")) {
+                JSONObject o = new JSONObject();
+                o.put("name", "Link 1");
+                o.put("channel", f.name);
+                o.put("link", link);
+                o.put("scheme", 0);
+                o.put("api", "");
+                o.put("hasVpnDetection", false);
+                JSONArray arr = new JSONArray();
+                arr.put(o);
+                f.link = arr.toString();
+            }
+        } catch (Throwable ignored) {
+        }
+        // Stub "welcome" playlists never match channel names → JSONException.
+        // Prefer the stored direct stream for those only.
+        if (isStubPlaylist(f.playlist)) {
+            f.playlist = "";
+        }
+    }
+
+    private static boolean isStubPlaylist(String playlist) {
+        if (playlist == null || playlist.length() == 0) {
+            return false;
+        }
+        String p = playlist.toLowerCase();
+        // Known empty/stub endpoints that return only a welcome banner
+        if (p.contains("pzsl.pzcdn.workers.dev") && p.contains("get-pl")) {
+            return true;
+        }
+        return false;
     }
 
     private static JSONArray toJson(List<Fav> list) throws Exception {

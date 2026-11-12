@@ -1,0 +1,68 @@
+[
+  {
+    "name": "Colors HD",
+    "image": "https:\/\/v3img.voot.com\/resizeMedium,w_1090,h_613\/v3Storage\/assets\/colors-hindi--16x9-1714557869344.jpg",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Colors HD\",\"link\":\"https:\\\/\\\/jcevents.hotstar.com\\\/bpk-tv\\\/JS_ColorsHD\\\/JioHotstar\\\/JS_ColorsHD.m3u8?|cookie=hdntl=exp=1793818824~acl=%2f*~id=6b7d0714557521e676cd783384917cb5~data=hdntl~hmac=73dce3d668048bb2cec851139ecfec3bca79f795589f67b920e16ac3f0fd300c&referer=https:\\\/\\\/www.hotstar.com\\\/&user-agent=Hotstar;in.startv.hotstar\\\/25.02.24.8.11169@Premium Plugx(Android\\\/15)\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/premiumplugx.com\/htt\/hot.php?playlist=1?https:\/\/premiumplugx.top\/tivjh\/playlist.php"
+  },
+  {
+    "name": "Sony Entertainment Television HD (1080p)",
+    "image": "https:\/\/dtil.tmsimg.com\/assets\/s159096_ld_h15_aa.png?lock=720x540",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Sony Entertainment Television HD (1080p)\",\"link\":\"http:\\\/\\\/38.96.178.205\\\/SONYHD\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Colors (576p)",
+    "image": "https:\/\/i.imgur.com\/M8uCJ0D.png",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Colors (576p)\",\"link\":\"https:\\\/\\\/raw.githubusercontent.com\\\/amazeyourself\\\/adaptive-streams\\\/refs\\\/heads\\\/main\\\/streams\\\/sg\\\/YuppTV\\\/ColorsAPAC.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Colors HD (1080p)",
+    "image": "https:\/\/i.imgur.com\/M8uCJ0D.png",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Colors HD (1080p)\",\"link\":\"http:\\\/\\\/103.135.253.32:8080\\\/Color-HD\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Pogo (720p)",
+    "image": "https:\/\/xstreamcp-assets-msp.streamready.in\/assets\/LIVETV\/LIVECHANNEL\/LIVETV_LIVETVCHANNEL_POGO\/images\/LOGO_HD\/image.png",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Pogo (720p)\",\"link\":\"https:\\\/\\\/drk6xq0vhn.gpcdn.net\\\/live\\\/pogo_sd_abr\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Nick Jr. (India) (576p)",
+    "image": "https:\/\/xstreamcp-assets-msp.streamready.in\/assets\/LIVETV\/LIVECHANNEL\/LIVETV_LIVETVCHANNEL_NICK_JUNIOR\/images\/LOGO_HD\/image.png",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Nick Jr. (India) (576p)\",\"link\":\"http:\\\/\\\/103.185.24.134:3001\\\/NICK-JR\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Shin-chan (720p)",
+    "image": "https:\/\/image.tmdb.org\/t\/p\/original\/fIYWvHIeqc1A9D4PyayFkgjRxCh.png",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Shin-chan (720p)\",\"link\":\"https:\\\/\\\/live20.bozztv.com\\\/giatvplayout7\\\/giatv-210780\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Sony Max HD (1080p)",
+    "image": "https:\/\/dtil.tmsimg.com\/assets\/s157590_ld_h15_aa.png?lock=720x540",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Sony Max HD (1080p)\",\"link\":\"http:\\\/\\\/103.135.253.32:8080\\\/Sony-Max-HD\\\/index.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Zee Bharat (720p)",
+    "image": "https:\/\/dtil.tmsimg.com\/assets\/GNLZZGG00230QBL.png?lock=720x540",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Zee Bharat (720p)\",\"link\":\"https:\\\/\\\/vg-zeefta.akamaized.net\\\/ptnr-yupptv\\\/title-zeehindustan\\\/v1\\\/master\\\/611d79b11b77e2f571934fd80ca1413453772ac7\\\/96bbab12-582e-4540-af70-510ab6824581\\\/main.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Zee Business (1080p)",
+    "image": "https:\/\/dtil.tmsimg.com\/assets\/GNLZZGG00230YYJ.png?lock=720x540",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Zee Business (1080p)\",\"link\":\"https:\\\/\\\/vg-zeefta.akamaized.net\\\/ptnr-yupptv\\\/title-zee_business\\\/v1\\\/master\\\/611d79b11b77e2f571934fd80ca1413453772ac7\\\/af1b3fa3-f56d-4741-9c63-78409a798988\\\/main.m3u8\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"\"}]",
+    "playlist": "https:\/\/iptv-org.github.io\/iptv\/languages\/hin.m3u"
+  },
+  {
+    "name": "Sun Marathi",
+    "image": "https:\/\/sund-images.sunnxt.com\/194387\/640x360_SunMarathi_194387_441db2e2-0fa1-48ca-be59-7f5dd70f66cb.jpg",
+    "link": "[{\"name\":\"Link 1\",\"channel\":\"Sun Marathi\",\"link\":\"https:\\\/\\\/livestream9.sunnxt.com\\\/b0aacde03b744564870634ecb10e8a31\\\/SunMarathiB_IN_index.mpd\",\"scheme\":0,\"hasVpnDetection\":false,\"api\":\"5ea90a1f3b1e4a0a9b72c8e0f4a9bf31:30899fda5ca4dfb5a4535ce10c4d7341\"}]",
+    "playlist": "https:\/\/playlists-by-playztv.pages.dev\/snxt"
+  }
+]
